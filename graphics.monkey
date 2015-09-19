@@ -2,6 +2,18 @@ Strict
 
 Public
 
+#Rem
+	NOTES:
+		* This module defines an 'Image' class that attempts
+		to provides API compatibility with Mojo 1's 'mojo.graphics' module.
+		
+		It does this by housing Mojo 2's 'Image' implementation,
+		referenced internally as 'Mojo2Image'.
+		
+		* Concepts like flags, handles, and colors are managed
+		the same way as the original 'mojo.graphics' module.
+#End
+
 ' Imports (Public):
 ' Nothing so far.
 
@@ -16,6 +28,21 @@ Public
 
 ' Aliases:
 Alias Mojo2Image = mojo2.graphics.Image
+
+' Constant variable(s):
+Const AlphaBlend:= BlendMode.Alpha
+Const AdditiveBlend:= BlendMode.Additive
+Const LightenBlend:= AdditiveBlend ' Deprecated.
+
+' Global variable(s) (Private):
+Private
+
+Global DefaultCanvas:Canvas
+
+Global GraphicsCanvas:Canvas
+Global GraphicsList:DrawList
+
+Public
 
 ' Classes:
 Class Image
@@ -66,6 +93,7 @@ Class Image
 		Return NewFlags
 	End
 	
+	' Behavior consistency layer (Taken from my 'resources' module):
 	Function LoadImage:Mojo2Image[](Path:String, FrameCount:Int=1, Flags:Int=DefaultFlags, HandleX:Float=0.5, HandleY:Float=0.5, Padded:Bool=False)
 		Return Mojo2Image.LoadFrames(Path, FrameCount, Padded, HandleX, HandleY, Flags)
 	End
@@ -112,6 +140,8 @@ Class Image
 	Private
 	
 	Method New(Width:Int, Height:Int, FrameCount:Int=1, Flags:Int=DefaultFlags)
+		'Flags |= Managed
+		
 		Self.ImageFrames = New Mojo2Image[FrameCount]
 		
 		Local RealFlags:= NativeFlags(Flags)
@@ -252,26 +282,11 @@ Class Image
 	Public
 End
 
-' Constant variable(s):
-Const AlphaBlend:= BlendMode.Alpha
-Const AdditiveBlend:= BlendMode.Additive
-Const LightenBlend:= AdditiveBlend ' Deprecated.
-
-' Global variable(s) (Private):
-Private
-
-Global DefaultCanvas:Canvas
-
-Global GraphicsCanvas:Canvas
-Global GraphicsList:DrawList
-
-Public
-
 ' Functions:
 
 ' Extended API:
 
-' This will use the last 'Canvas' specified when needed.
+' This will use the last 'Canvas' specified for 'Canvas' only operations.
 Function InitDraw:Void(Graphics:DrawList)
 	GraphicsList = Graphics
 	
@@ -300,10 +315,22 @@ Function InitDraw:Void()
 	Return
 End
 
+' This returns the current internal 'Canvas'.
+Function GetCurrentCanvas:Canvas()
+	Return GraphicsCanvas
+End
+
+' This returns the current internal 'DrawList'.
+Function GetCurrentDrawList:DrawList()
+	Return GraphicsList
+End
+
+' This converts a Mojo color (0.0 to 255.0) into a Mojo 2 / OpenGL color (0.0 to 1.0).
 Function ConvertColor:Float(MojoColor:Float)
 	Return (MojoColor / 255.0)
 End
 
+' This command may be used to display the current 'Canvas' and/or 'DrawList'.
 Function Flip:Void()
 	GraphicsCanvas.Flush()
 	
@@ -314,7 +341,12 @@ Function Flip:Void()
 	Return
 End
 
-' Standard API:
+' This provides the internal 'Material' used by the current font.
+Function GetFontMaterial:Material()
+	Return GraphicsList.Font.GetGlyph(65).image.Material
+End
+
+' Standard API (Behavior partially defined):
 Function BeginRender:Int()
 	' Reserved; do not modify.
 	
@@ -661,7 +693,7 @@ Function SetFont:Int(Font:Image, FirstChar:Int=32)
 End
 
 Function GetFont:Image()
-	Return GraphicsList.Font.GetGlyph(65).image ' A
+	Return New Image(GetFontMaterial(), 0.0, 0.0) ' A
 End
 
 Function TextWidth:Float(Text:String)
