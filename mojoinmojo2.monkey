@@ -3,8 +3,8 @@ Strict
 Public
 
 ' Imports:
-Import mojo.app
-Import mojo.input
-Import mojo.audio
+Import app
+Import input
+Import audio
 
 Import graphics
