@@ -3,13 +3,14 @@ Strict
 Public
 
 ' Imports:
-Import mojoinmojo2
+Import regal.mojoinmojo2
 
 ' Classes:
 Class Application Extends App Final
 	' Constructor(s):
 	Method OnCreate:Int()
 		SetUpdateRate(0)
+		SetSwapInterval(0)
 		
 		InitDraw()
 		
