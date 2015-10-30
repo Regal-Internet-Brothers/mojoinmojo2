@@ -183,11 +183,11 @@ Class Image
 	End
 
 	Method HandleX:Float()
-		Return FirstFrame.HandleX*Width
+		Return FirstFrame.HandleX*Width()
 	End
 	
 	Method HandleY:Float()
-		Return FirstFrame.HandleY*Height
+		Return FirstFrame.HandleY*Height()
 	End
 	
 	Method GrabImage:Image(X:Int, Y:Int, Width:Int, Height:Int, FrameCount:Int=1, Flags:Int=DefaultFlags)
@@ -263,8 +263,21 @@ Class Image
 	
 	Public
 	
-	' Properties (Private):
-	Private
+	' Properties (Public):
+	
+	' This is an "unsafe" handle to the internal Mojo2 image array. (API extension; use at your own risk)
+	Method ImageFrames:Mojo2Image[]() Property
+		Return Self._ImageFrames
+	End
+	
+	' Properties (Protected):
+	Protected
+	
+	Method ImageFrames:Void(Input:Mojo2Image[]) Property
+		Self._ImageFrames = Input
+		
+		Return
+	End
 	
 	Method FirstFrame:Mojo2Image() Property
 		Return ImageFrames[0]
@@ -275,7 +288,7 @@ Class Image
 	' Fields (Private):
 	Private
 	
-	Field ImageFrames:Mojo2Image[]
+	Field _ImageFrames:Mojo2Image[]
 	
 	Field _Flags:Int
 	
@@ -617,7 +630,7 @@ Function DrawImage:Int(I:Image, X:Float, Y:Float, Rotation:Float, ScaleX:Float, 
 End
 
 Function DrawImageRect:Int(I:Image, X:Float, Y:Float, SourceX:Int, SourceY:Int, SourceWidth:Int, SourceHeight:Int, Frame:Int=0)
-	GraphicsList.DrawRect(X, Y, I, SourceX, SourceY, SourceWidth, SourceHeight)
+	GraphicsList.DrawRect(X, Y, I.ImageFrames[Frame], SourceX, SourceY, SourceWidth, SourceHeight)
 	
 	' Return the default response.
 	Return 0
@@ -628,10 +641,10 @@ Function DrawImageRect:Int(I:Image, X:Float, Y:Float, SourceX:Int, SourceY:Int, 
 	
 	GraphicsList.TranslateRotateScale(X, Y, Rotation, ScaleX, ScaleY)
 	
-	GraphicsList.Translate(-I.HandleX, -I.HandleY)
+	GraphicsList.Translate(-I.HandleX(), -I.HandleY())
 	
 	'DrawImageRect(I, X, Y, SourceX, SourceY, SourceWidth, SourceHeight, Frame)
-	GraphicsList.DrawRect(X, Y, I, SourceX, SourceY, SourceWidth, SourceHeight)
+	GraphicsList.DrawRect(X, Y, I.ImageFrames[Frame], SourceX, SourceY, SourceWidth, SourceHeight)
 	
 	GraphicsList.PopMatrix()
 	
