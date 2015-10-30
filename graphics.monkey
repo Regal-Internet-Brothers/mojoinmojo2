@@ -235,7 +235,7 @@ Class Image
 		Return 0
 	End
 	
-	Method WritePixels:Void(Pixels:Int[], X:Int, y:Int, Width:Int, Height:Int, Offset:Int=0, Pitch:Int=0)
+	Method WritePixels:Void(Pixels:Int[], X:Int, Y:Int, Width:Int, Height:Int, Offset:Int=0, Pitch:Int=0)
 		'If (Pitch <= 0) Then Pitch = Width
 		
 		' Local variable(s):
@@ -609,7 +609,7 @@ End
 
 ' This command is currently unfinished.
 Function DrawPoly:Int(Vertices:Float[], I:Image, Frame:Int=0)
-	GraphicsList.DrawPoly(Vertices, I.FirstFrame.Materials)
+	GraphicsList.DrawPoly(Vertices, I.FirstFrame.Material)
 	
 	' Return the default response.
 	Return -1 ' 0
@@ -652,13 +652,14 @@ Function DrawImageRect:Int(I:Image, X:Float, Y:Float, SourceX:Int, SourceY:Int, 
 	Return 0
 End
 
-' Largely untested; use at your own risk.
+' Largely untested; use at your own risk. ('Pitch' likely doesn't work at the moment)
 Function ReadPixels:Int(Pixels:Int[], X:Int, Y:Int, Width:Int, Height:Int, Offset:Int=0, Pitch:Int=0)
-	Local Temp:= New DataBuffer((Pixels.Length-Offset)*4) ' SizeOf_Integer
+	Local PixelsAvail:= (Pixels.Length-Offset)
+	Local Temp:= New DataBuffer(PixelsAvail*4) ' SizeOf_Integer
 	
-	ReadPixels(X, Y, Width, Height, Temp, Offset, Pitch)
+	GraphicsCanvas.ReadPixels(X, Y, Width, Height, Temp, Offset, Pitch)
 	
-	Temp.PeekInts(0, Pixels, Offset, Count)
+	Temp.PeekInts(0, Pixels, Offset, PixelsAvail)
 	
 	Temp.Discard()
 	
@@ -706,7 +707,7 @@ Function SetFont:Int(Font:Image, FirstChar:Int=32)
 End
 
 Function GetFont:Image()
-	Return New Image(GetFontMaterial(), 0.0, 0.0) ' A
+	Return New Image([New Mojo2Image(GetFontMaterial(), 0.0, 0.0)]) ' A
 End
 
 Function TextWidth:Float(Text:String)
@@ -714,11 +715,11 @@ Function TextWidth:Float(Text:String)
 End
 
 Function TextHeight:Float()
-	Return FontHeight
+	Return FontHeight()
 End
 
 Function FontHeight:Float()
-	Return GraphicsList.Font.TextHeight
+	Return GraphicsList.Font.TextHeight("A")
 End
 
 Function DrawText:Int(Text:String, X:Float, Y:Float, XAlign:Float=0.0, YAlign:Float=0.0)
@@ -728,13 +729,18 @@ Function DrawText:Int(Text:String, X:Float, Y:Float, XAlign:Float=0.0, YAlign:Fl
 	Return 0
 End
 
+' Slightly modified from Mojo 1's implementation:
 Function InvTransform:Float[](coords:Float[])
-	Local m00:=   context.ix
-	Local m10:=   context.jx
-	Local m20:=   context.tx
-	Local m01:=   context.iy
-	Local m11:=   context.jy
-	Local m21:=   context.ty
+	Local m:= New Float[6] ' Float[6]
+	
+	GraphicsList.GetMatrix(m)
+	
+	Local m00:=   m[0]
+	Local m10:=   m[1]
+	Local m20:=   m[2]
+	Local m01:=   m[3]
+	Local m11:=   m[4]
+	Local m21:=   m[5]
 	
 	Local det:=   m00*m11 - m01*m10
 	Local idet:=  1.0/det

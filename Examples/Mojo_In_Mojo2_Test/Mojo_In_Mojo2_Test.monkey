@@ -2,8 +2,18 @@ Strict
 
 Public
 
+'#MOJO_IN_MOJO2_DEMO_REFLECTION = True
+
+#If MOJO_IN_MOJO2_DEMO_REFLECTION
+	#REFLECTION_FILTER = "regal.mojoinmojo2.*"
+#End
+
 ' Imports:
 Import regal.mojoinmojo2
+
+#If MOJO_IN_MOJO2_DEMO_REFLECTION
+	Import reflection
+#End
 
 ' Classes:
 Class Application Extends App Final
