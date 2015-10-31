@@ -8,11 +8,15 @@ Import asyncloaders
 
 Import brl.asyncevent
 
-'Import mojo.asyncsoundloader
-
 ' Imports (Private):
 Private
 
-Import brl.thread
+' External:
+Import mojo.asyncsoundloader
 
 Public
+
+' Aliases:
+Alias IOnLoadSoundComplete = asyncsoundloader.IOnLoadSoundComplete
+
+Alias LoadSoundAsync = asyncsoundloader.LoadSoundAsync
