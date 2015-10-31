@@ -136,10 +136,30 @@ Class Image
 	
 	Public
 	
-	' Constructor(s) (Private):
-	Private
-	
+	' Constructor(s) (Unsafe; API extension):
 	Method New(Width:Int, Height:Int, FrameCount:Int=1, Flags:Int=DefaultFlags)
+		Init(Width, Height, FrameCount, Flags)
+	End
+	
+	Method New(Frames:Mojo2Image[], Flags:Int=DefaultFlags)
+		ImageFrames = Frames
+		
+		ApplyFlags(Flags)
+	End
+	
+	Method New(RawData:DataBuffer, Resolution:Int[], Flags:Int=DefaultFlags, ROffset:Int=0, RawDataOffset:Int=0, RawDataPitch:Int=0)
+		Local Width:= Resolution[ROffset]
+		Local Height:= Resolution[ROffset+1]
+		
+		Init(Width, Height, 1, Flags)
+		
+		FirstFrame.WritePixels(0, 0, Width, Height, RawData, RawDataOffset, RawDataPitch)
+	End
+	
+	' Constructor(s) (Protected):
+	Protected
+	
+	Method Init:Void(Width:Int, Height:Int, FrameCount:Int=1, Flags:Int=DefaultFlags)
 		'Flags |= Managed
 		
 		Self.ImageFrames = New Mojo2Image[FrameCount]
@@ -149,12 +169,6 @@ Class Image
 		For Local I:= 0 Until FrameCount
 			Self.ImageFrames[I] = New Mojo2Image(Width, Height, 0.0, 0.0, RealFlags)
 		Next
-		
-		ApplyFlags(Flags)
-	End
-	
-	Method New(Frames:Mojo2Image[], Flags:Int=DefaultFlags)
-		Self.ImageFrames = Frames
 		
 		ApplyFlags(Flags)
 	End
