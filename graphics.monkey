@@ -44,7 +44,7 @@ Global GraphicsList:DrawList
 
 Public
 
-' Classes:
+' Classes (Public):
 Class Image
 	' Constant variable(s) (Public):
 	Const MidHandle:= 1
@@ -368,9 +368,21 @@ Function Flip:Void()
 	Return
 End
 
+Function GetFontGlyph:Glyph(F:Font, C:Int)
+	Return F.GetGlyph(C)
+End
+
+Function GetFontGlyph:Glyph(C:Int)
+	Return GetFontGlyph(GraphicsList.Font, C)
+End
+
+Function GetRawFont:Mojo2Image()
+	Return GetFontGlyph(65).image ' A
+End
+
 ' This provides the internal 'Material' used by the current font.
 Function GetFontMaterial:Material()
-	Return GraphicsList.Font.GetGlyph(65).image.Material
+	Return GetRawFont().Material
 End
 
 ' Standard API (Behavior partially defined):
@@ -721,19 +733,23 @@ Function SetFont:Int(Font:Image, FirstChar:Int=32)
 End
 
 Function GetFont:Image()
-	Return New Image([New Mojo2Image(GetFontMaterial(), 0.0, 0.0)]) ' A
+	Local AGlyph:= GetFontGlyph(65) ' 65
+	
+	Local M2I:= New Mojo2Image(AGlyph.image, AGlyph.x, AGlyph.y, AGlyph.width, AGlyph.height) ' AGlyph.image.HandleX, AGlyph.image.HandleY ' GetRawFont()
+	
+	Return New Image([M2I])
 End
 
 Function TextWidth:Float(Text:String)
-	Return GraphicsList.Font.TextWidth(Text)
+	Return GraphicsList.Font.TextWidth(Text) ' GetFontGlyph(65).width * Text.Length ' A
 End
 
 Function TextHeight:Float()
-	Return FontHeight()
+	Return 
 End
 
 Function FontHeight:Float()
-	Return GraphicsList.Font.TextHeight("A")
+	Return GetFontGlyph(65).height ' A
 End
 
 Function DrawText:Int(Text:String, X:Float, Y:Float, XAlign:Float=0.0, YAlign:Float=0.0)
