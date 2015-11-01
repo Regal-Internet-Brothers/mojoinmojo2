@@ -34,4 +34,4 @@ Below is a list of known issues with this implementation of 'mojo.graphics'. Eve
 * 'LoadImageAsync' checks out, at least for the main demo.
 * With the most recent font hack(s), the "game of life" banana works properly.
 * The "fire paint" banana works very accurately.
-* * Most basic bananas provided with Moneky work without an issue.
+* Most basic bananas provided with Monkey work without an issue.
