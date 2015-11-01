@@ -1,16 +1,18 @@
 # mojoinmojo2
-An experimental API-wrapper for [Monkey](https://github.com/blitz-research/monkey) that converts Mojo 1 calls to Mojo 2. (Graphics)
+An experimental API-wrapper for [Monkey](https://github.com/blitz-research/monkey) that converts Mojo 1 (Graphics) calls to Mojo 2.
 
-Many intricate behaviors of 'mojo.graphics' are untested. Some have been tested, but aren't accurate currently. If you're willing to be a guinea pig, try it out.
+Many intricate behaviors of 'mojo.graphics' are untested. Some have been tested, but aren't accurate currently ([See below](#known-bugs--inconsistencies)).
+
+If you're willing to be a guinea pig, try it out.
 
 ## Installation Guide:
-Though this is an experimental module, usually associated with the 'regal' group of modules, this does not require any other third party modules. This rule is enforced to allow for easy portability, and usage for existing Mojo applications.
+Though this is an experimental module, usually associated with the '[regal](https://github.com/Regal-Internet-Brothers/regal-modules)' group of modules, this does not require any other third party modules. This rule is enforced to allow for easy portability, and usage for existing Mojo applications.
 
 In order to get an existing Mojo application running, you'll need to do one or more of the following things:
 * The first option is to change all imports to 'mojo' (Main module) to 'mojoinmojo2'. In addition, you'll need to change 'mojo.graphics' to 'mojoinmojo2.graphics'.
 * The second option is to rename every use of 'mojo' in 'mojoinmojo2', then rename 'mojoinmojo2' to 'mojo'. (Less useful)
 
-In general, that step is up to you.
+In general, that step is up to you. If you wish to use the '[regal](https://github.com/Regal-Internet-Brothers/regal-modules)' prefix, added that to uses of 'mojoinmojo2'. Usage of other sub-modules should be automatically routed when using 'mojoinmojo2', but at the same time, **code not using 'mojo.graphics'** (Or possibly 'mojo.app', and similar functionality) **won't need to be changed at all**.
 
 After installation, you'll need to call some API-extensions:
 * Call 'InitDraw', in your 'OnCreate' implementation (Before anything graphics related).
