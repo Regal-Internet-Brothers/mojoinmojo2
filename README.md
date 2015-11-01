@@ -12,7 +12,7 @@ In order to get an existing Mojo application running, you'll need to do one or m
 * The first option is to change all imports to 'mojo' (Main module) to 'mojoinmojo2'. In addition, you'll need to change 'mojo.graphics' to 'mojoinmojo2.graphics'.
 * The second option is to rename every use of 'mojo' in 'mojoinmojo2', then rename 'mojoinmojo2' to 'mojo'. (Less useful)
 
-In general, that step is up to you. If you wish to use the '[regal](https://github.com/Regal-Internet-Brothers/regal-modules)' prefix, added that to uses of 'mojoinmojo2'. Usage of other sub-modules should be automatically routed when using 'mojoinmojo2', but at the same time, **code not using 'mojo.graphics'** (Or possibly 'mojo.app', and similar functionality) **won't need to be changed at all**.
+In general, that step is up to you. If you wish to use the '[regal](https://github.com/Regal-Internet-Brothers/regal-modules)' prefix, add it in front of uses of 'mojoinmojo2' ('regal.mojoinmojo2'). Usage of other sub-modules should be automatically routed when using 'mojoinmojo2', but at the same time, **code not using 'mojo.graphics'** (Or possibly 'mojo.app', and similar functionality) **won't need to be changed at all**.
 
 After installation, you'll need to call some API-extensions:
 * Call 'InitDraw', in your 'OnCreate' implementation (Before anything graphics related).
