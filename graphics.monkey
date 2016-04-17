@@ -250,10 +250,20 @@ Class Image
 	End
 	
 	Method WritePixels:Void(Pixels:Int[], X:Int, Y:Int, Width:Int, Height:Int, Offset:Int=0, Pitch:Int=0)
-		'If (Pitch <= 0) Then Pitch = Width
+		#Rem
+			If (Not Pitch) Then
+				Pitch = Width
+			Endif
+		#End
 		
 		' Local variable(s):
-		Local Buffer:= New DataBuffer(Min(Pixels.Length, (Width*Height*4))) ' SizeOf_Integer
+		Local SizeInPixels:= (Width*Height)
+		
+		Local Buffer:= New DataBuffer(SizeInPixels * 4) ' New DataBuffer(Min((Pixels.Length*4), (SizeInPixels*4))) ' SizeOf_Integer
+		
+		Buffer.PokeInts(0, Pixels, Offset, SizeInPixels) ' + (Pitch * Width)
+		
+		ConvertPixels(Buffer, Buffer, Width, Height, Pitch)
 		
 		FirstFrame.WritePixels(X, Y, Width, Height, Buffer, Offset, Pitch)
 		
@@ -360,6 +370,37 @@ End
 ' This converts a Mojo 2 / OpenGL color (0.0 to 1.0) into a Mojo 1 color (0.0 to 255.0).
 Function ToMojoColor:Float(Color:Float)
 	Return (Color * 255.0)
+End
+
+' This converts the "ARGB" raw pixel format from Mojo into Mojo 2's "pre-computed alpha" format.
+Function ConvertPixels:Void(Source:DataBuffer, Destination:DataBuffer, Width:Int, Height:Int, Pitch:Int, SrcByteOffset:Int=0, DstByteOffset:Int=0)
+	If (Pitch <= 0) Then
+		Pitch = Width
+	Endif
+	
+	For Local py:= 0 Until Height
+		Local destOffset:= (DstByteOffset + (py * Width * 4))
+		Local srcOffset:= (SrcByteOffset + (py * Pitch * 4))
+		
+		For Local px:= 0 Until Width
+			Local a:Int, r:Int, g:Int, b:Int
+			
+			a = Source.PeekByte(srcOffset+3) & $FF ' (p Shr 24)
+			r = Source.PeekByte(srcOffset+2) & $FF
+			g = Source.PeekByte(srcOffset+1) & $FF
+			b = Source.PeekByte(srcOffset) & $FF
+			
+			Local alpha:= (Float(a) / 255.0) ' $FF
+			
+			Destination.PokeByte(destOffset, Int(r*alpha))
+			Destination.PokeByte(destOffset+1, Int(g*alpha))
+			Destination.PokeByte(destOffset+2, Int(b*alpha))
+			Destination.PokeByte(destOffset+3, a) ' a
+			
+			srcOffset += 4
+			destOffset += 4
+		Next
+	Next
 End
 
 ' This command may be used to display the current 'Canvas' and/or 'DrawList'.
