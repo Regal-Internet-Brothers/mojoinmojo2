@@ -357,6 +357,11 @@ Function ConvertColor:Float(MojoColor:Float)
 	Return (MojoColor / 255.0)
 End
 
+' This converts a Mojo 2 / OpenGL color (0.0 to 1.0) into a Mojo 1 color (0.0 to 255.0).
+Function ToMojoColor:Float(Color:Float)
+	Return (Color * 255.0)
+End
+
 ' This command may be used to display the current 'Canvas' and/or 'DrawList'.
 Function Flip:Void()
 	GraphicsCanvas.Flush()
