@@ -263,7 +263,7 @@ Class Image
 		
 		Buffer.PokeInts(0, Pixels, Offset, SizeInPixels) ' + (Pitch * Width)
 		
-		ConvertPixels(Buffer, Buffer, Width, Height, Pitch)
+		ConvertPixels(Buffer, Buffer, Width, Height, True, Pitch) ' False
 		
 		FirstFrame.WritePixels(X, Y, Width, Height, Buffer, Offset, Pitch)
 		
@@ -372,8 +372,8 @@ Function ToMojoColor:Float(Color:Float)
 	Return (Color * 255.0)
 End
 
-' This converts the "ARGB" raw pixel format from Mojo into Mojo 2's "pre-computed alpha" format.
-Function ConvertPixels:Void(Source:DataBuffer, Destination:DataBuffer, Width:Int, Height:Int, Pitch:Int, SrcByteOffset:Int=0, DstByteOffset:Int=0)
+' This converts the "BGRA" raw pixel format from Mojo into Mojo 2's "pre-computed alpha" format.
+Function ConvertPixels:Void(Source:DataBuffer, Destination:DataBuffer, Width:Int, Height:Int, Multiply:Bool=True, Pitch:Int=0, SrcByteOffset:Int=0, DstByteOffset:Int=0)
 	If (Pitch <= 0) Then
 		Pitch = Width
 	Endif
@@ -390,12 +390,56 @@ Function ConvertPixels:Void(Source:DataBuffer, Destination:DataBuffer, Width:Int
 			g = Source.PeekByte(srcOffset+1) & $FF
 			b = Source.PeekByte(srcOffset) & $FF
 			
-			Local alpha:= (Float(a) / 255.0) ' $FF
+			If (Multiply) Then
+				Local alpha:= (Float(a) / 255.0) ' $FF
+				
+				r = Int(r*alpha)
+				g = Int(g*alpha)
+				b = Int(b*alpha)
+			Endif
 			
-			Destination.PokeByte(destOffset, Int(r*alpha))
-			Destination.PokeByte(destOffset+1, Int(g*alpha))
-			Destination.PokeByte(destOffset+2, Int(b*alpha))
-			Destination.PokeByte(destOffset+3, a) ' a
+			Destination.PokeByte(destOffset, r)
+			Destination.PokeByte(destOffset+1, g)
+			Destination.PokeByte(destOffset+2, b)
+			
+			Destination.PokeByte(destOffset+3, a)
+			
+			srcOffset += 4
+			destOffset += 4
+		Next
+	Next
+End
+
+' This converts the "RGBA" raw pixel format from Mojo 2 into Mojo's "BGRA" format.
+Function ToMojoPixels:Void(Source:DataBuffer, Destination:DataBuffer, Width:Int, Height:Int, Multiply:Bool=True, Pitch:Int=0, SrcByteOffset:Int=0, DstByteOffset:Int=0)
+	If (Pitch <= 0) Then
+		Pitch = Width
+	Endif
+	
+	For Local py:= 0 Until Height
+		Local destOffset:= (DstByteOffset + (py * Width * 4))
+		Local srcOffset:= (SrcByteOffset + (py * Pitch * 4))
+		
+		For Local px:= 0 Until Width
+			Local a:Int, r:Int, g:Int, b:Int
+			
+			r = Source.PeekByte(srcOffset) & $FF
+			g = Source.PeekByte(srcOffset+1) & $FF
+			b = Source.PeekByte(srcOffset+2) & $FF
+			a = Source.PeekByte(srcOffset+3) & $FF ' (p Shr 24)
+			
+			If (Multiply) Then
+				Local alpha:= (Float(a) / 255.0) ' $FF
+				
+				r = Int(r*alpha)
+				g = Int(g*alpha)
+				b = Int(b*alpha)
+			Endif
+			
+			Destination.PokeByte(destOffset, b)
+			Destination.PokeByte(destOffset+1, g)
+			Destination.PokeByte(destOffset+2, r)
+			Destination.PokeByte(destOffset+3, a)
 			
 			srcOffset += 4
 			destOffset += 4
