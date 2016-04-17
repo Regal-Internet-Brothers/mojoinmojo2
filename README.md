@@ -9,7 +9,7 @@ If you're willing to be a guinea pig, try it out.
 Though this is an experimental module, usually associated with the '[regal](https://github.com/Regal-Internet-Brothers/regal-modules)' group of modules, this does not require any other third party modules. This rule is enforced to allow for easy portability, and usage for existing Mojo applications.
 
 In order to get an existing Mojo application running, you'll need to do one or more of the following things:
-* The first option is to change all imports to 'mojo' (Main module) to 'mojoinmojo2'. In addition, you'll need to change 'mojo.graphics' to 'mojoinmojo2.graphics'.
+* The first option is to change all imports of 'mojo' (Main module) to 'mojoinmojo2'. In addition, you'll need to change 'mojo.graphics' to 'mojoinmojo2.graphics'.
 * The second option is to rename every use of 'mojo' in 'mojoinmojo2', then rename 'mojoinmojo2' to 'mojo'. (Less useful)
 
 In general, that step is up to you. If you wish to use the '[regal](https://github.com/Regal-Internet-Brothers/regal-modules)' prefix, add it in front of uses of 'mojoinmojo2' ('regal.mojoinmojo2'). Usage of other sub-modules should be automatically routed when using 'mojoinmojo2', but at the same time, **code not using 'mojo.graphics'** (Or possibly 'mojo.app', and similar functionality) **won't need to be changed at all**.
