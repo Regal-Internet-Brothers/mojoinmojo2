@@ -86,6 +86,24 @@ Class AsyncImageLoader Extends AsyncImageLoaderThread Implements IAsyncEventSour
 		RemoveAsyncEventSource(Self)
 		
 		If (Result) Then
+			For Local I:= 0 Until Data.Length Step 4
+				Local Pixel:= Data.PeekInt(I)
+				
+				' Retrieve the alpha channel.
+				Local A:= (Pixel Shr 24 & 255)
+				
+				' Calculate the floating-point representation of 'a'. (0.0 to 1.0)
+				Local A_Scalar:= (Float(A) / 255.0)
+				
+				' Retrieve each color value from our pixel, then multiply each by our alpha:
+				Local B:= Int(Float(Pixel Shr 16 & 255) * A_Scalar)
+				Local G:= Int(Float(Pixel Shr 8 & 255) * A_Scalar)
+				Local R:= Int(Float(Pixel & 255) * A_Scalar)
+				
+				' Rewrite to the image-buffer using a composite of our color channels.
+				Data.PokeInt(I, ((A Shl 24) | (B Shl 16) | (G Shl 8) | R))
+			Next
+			
 			OnComplete.OnLoadImageComplete(New Image(Data, Info, Flags), RealPath, Self)
 		Else
 			OnComplete.OnLoadImageComplete(Null, RealPath, Self)
